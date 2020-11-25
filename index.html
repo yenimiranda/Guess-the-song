@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang=es>
+  <head>
+    <title>Adivina</title>
+  <style>
+    * {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  background: #6e6767;
+}
+.container {
+display:flex;
+flex-direction:row;
+}
+.game {
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+h1 {
+  height: 130px;
+  width: 70%;
+  font-size: 35px;
+  font-weight: 800;
+}
+.counter {
+  color: rgb(0, 255, 200);
+  font-size: 50px;
+  font-weight: 800;
+  background-color: transparent;
+  text-align: center;
+  width: 20%;
+  position:absolute;
+  top: 0;
+  left: 50%;
+  border: 0;
+  -webkit-appearance: none;
+  -moz-appearance:none;
+}
+input, button {
+  margin-top: 20px;
+}
+.form-number {
+text-align: center;
+display: flex;
+flex-direction: column;
+}
+.form-name {
+  width: 60%;
+}
+.hidden {
+  display:none;
+}
+#cell-number, #cell-extra {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 10px;
+}
+.buttonName {
+width: 40%;
+padding-left: 30px;
+padding-right: 30px;
+}
+.clue-cell {
+  text-align: center;
+  border: 1px solid rgb(59, 59, 104);
+  color: rgb(255, 255, 255);
+  margin-top: 100px;
+  margin-left: 30px;
+  padding-right: 40px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  width: 80%
+}
+span {
+  font-style:italic;
+}
+
+h2 {
+  margin-left: 50px;
+}
+.ranking {
+  width: 20%;
+  border-left: 2px solid rgb(11, 6, 26);
+}
+.rankingList {
+  margin-left: 60px;
+}
+#player {
+background-color: transparent;
+border: none;
+margin: 0;
+}
+@media all and (max-width:900px) {
+  .container {
+    display:flex;
+    flex-wrap:wrap;
+  }
+  .ranking {
+    width: 100%;
+    border-top:1px solid black;
+    border-left: none;
+  }
+  .game {
+    width: 100%;
+  }
+  .counter {
+    color: red;
+    width: 20%;
+    position:absolute;
+    top: 0;
+    left: 80%;
+  }
+  h1 {
+    height: 60px;
+    margin-right: 50px;
+    margin-bottom: 15px;
+  }
+  .clue-cell {
+    margin-top: 40px;
+    margin-bottom: 0px;
+    padding: 10px;
+  }
+}
+@media all and (max-width:430px) {
+  h1 {
+    width: 100%;
+    font-size: 30px;
+    font-weight: 800;
+    margin-right: 0px;
+    margin-top: 15px;
+  }
+  .counter {
+    font-size: 40px;
+    font-weight: 800;
+    margin-top: 50px;
+  }
+  .clue-cell {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+  </style>
+    <body>
+    <main class="container">
+      <aside class="game">
+        <h1>Adivina el número</h1>
+        <p class="counter"></p>
+      <form class="form-number" method="">
+        <label for="cellNumber">
+          Escribe aquí tu número
+
+        </label>
+        <input type="text" id="cellNumber" name="cell" value="">
+        <button type="button" class="buttonNumber" name="button">
+          Intenta
+        </button>
+      </form>
+        <form class="form-name hidden" method="" alt="cerrar previsualización">
+        <label for="cell-extra"></label>
+        <input id="cell-extra" class="nameUser" type="text" name="cell-extra" value="">
+        <button type="button" class="buttonName" name="button">
+          Guarda
+        </button>
+      </form>
+      <p class="clue-cell">
+        Escribe un número y dale a 
+        <span>
+          Intenta
+        </span>
+      </p>
+            </aside>
+            <aside class="ranking">
+              <h2>
+                Ranking
+              </h2>
+              <ul class= "rankingList">
+              </ul>
+      </aside>
+    </main>
+   <script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script>
+  $(function () {
+    var socket = io();
+    $('form').submit(function(e) {
+      e.preventDefault(); // prevents page reloading
+      socket.emit('chat message', $('#m').val());
+      $('#m').val('');
+      return false;
+    });
+  });
+</script>
+<script>
+  'use strict';
+function getRandomArbitrary(min, max) {
+return Math.ceil(Math.random() * (max - min)) + min;
+}
+var numberRandom = getRandomArbitrary(1,10);
+var buttonNumber = document.querySelector('.buttonNumber');
+buttonNumber.addEventListener('click', checkNumber);
+var inputUserNumber = document.querySelector ('#cellNumber');
+var textClue = document.querySelector ('.clue-cell');
+var counterPlus= document.querySelector ('.counter');
+var counterAcumulator= 0;
+
+function checkNumber(){
+  counterAcumulator= counterAcumulator+1;
+  counterPlus.innerHTML= counterAcumulator;
+
+  var valueUserNumberAsString = inputUserNumber.value;
+  var valueUserNumber = parseInt (valueUserNumberAsString);
+
+  if (valueUserNumber > numberRandom){
+    textClue.innerHTML= "Tu número es demasiado alto";
+  } else if (valueUserNumber < numberRandom) {
+    textClue.innerHTML= "Tu número es demasiado bajo";
+  } else if (valueUserNumber === numberRandom){
+    textClue.innerHTML= "¡Has acertado!";
+    var showButtonName= document.querySelector('.form-name');
+    showButtonName.classList.remove('hidden');
+  }
+};
+
+var buttonName= document.querySelector('.buttonName');
+buttonName.addEventListener('click',nameRanking);
+
+var user= document.querySelector('.nameUser'); 
+
+var playerList= document.querySelector('.rankingList'); 
+var resetCounter= document.querySelector ('.counter');
+
+function nameRanking () {
+  playerList.innerHTML+= '<li>' + user.value + ' - ' + counterAcumulator + ' intentos' + '</li>';
+  var showButtonName= document.querySelector('.form-name');
+  showButtonName.classList.add('hidden');
+  numberRandom = getRandomArbitrary(1,10);
+  counterAcumulator= 0;
+  resetCounter.innerHTML= counterAcumulator;
+  cellNumber.value="";
+  user.value="";
+  textClue.innerHTML= "Escribe un número y dale click a <span>Prueba</span>";
+}
+
+</script>
+  </body>
+</html>
